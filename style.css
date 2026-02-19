@@ -1,0 +1,499 @@
+:root {
+    --bg-color: #e0e5ec;
+    --shadow-dark: #a3b1c6;
+    --shadow-light: #ffffff;
+    --text-color: #5a6a7a;
+    
+    --color-red: #ff6b6b;
+    --color-teal: #4ecdc4;
+    --color-yellow: #ffd93d;
+    --color-green: #6bcb77;
+    --color-blue: #4d96ff;
+    --color-purple: #9d4edd;
+    --color-orange: #ff9f43;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#game-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-grid {
+    position: absolute;
+}
+
+.component {
+    position: absolute;
+    border-radius: 16px;
+    background: var(--bg-color);
+    box-shadow: 
+        6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light);
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+    cursor: pointer;
+    user-select: none;
+}
+
+.component.completed {
+    box-shadow: 
+        6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light),
+        inset 0 0 0 3px var(--component-color);
+}
+
+.component.completed::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--component-color);
+    opacity: 0;
+    animation: complete-flash 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes complete-flash {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.15; }
+}
+
+/* Button Component */
+.btn-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 65%;
+    height: 65%;
+    border-radius: 12px;
+    background: var(--component-color);
+    box-shadow: 
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
+    transition: all 0.15s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-inner::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        inset 1px 1px 2px rgba(0, 0, 0, 0.1),
+        0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.component:active .btn-inner {
+    box-shadow: 
+        inset 3px 3px 6px rgba(0, 0, 0, 0.15),
+        inset -3px -3px 6px rgba(255, 255, 255, 0.7);
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+/* Slider Component */
+.slider-track {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: calc(100% - 48px);
+    top: 24px;
+    border-radius: 22px;
+    background: var(--bg-color);
+    box-shadow: 
+        inset 4px 4px 8px var(--shadow-dark),
+        inset -4px -4px 8px var(--shadow-light);
+}
+
+.slider-track::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    right: -4px;
+    top: -4px;
+    bottom: -4px;
+    border-radius: 26px;
+    background: var(--bg-color);
+    box-shadow: 
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    z-index: -1;
+}
+
+.slider-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 0 0 22px 22px;
+    background: var(--component-color);
+}
+
+.slider-handle {
+    position: absolute;
+    left: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    background: var(--bg-color);
+    box-shadow: 
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
+    cursor: grab;
+    transition: box-shadow 0.15s ease;
+    border: 3px solid var(--component-color);
+}
+
+.slider-handle:active {
+    cursor: grabbing;
+    box-shadow: 
+        inset 4px 4px 8px var(--shadow-dark),
+        inset -4px -4px 8px var(--shadow-light);
+}
+
+.component.slider-horizontal .slider-track {
+    width: calc(100% - 48px);
+    height: 44px;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.component.slider-horizontal .slider-track::before {
+    border-radius: 26px;
+}
+
+.component.slider-horizontal .slider-fill {
+    left: 0;
+    bottom: 0;
+    top: 0;
+    right: auto;
+    border-radius: 22px 0 0 22px;
+    height: 100%;
+}
+
+.component.slider-horizontal .slider-handle {
+    top: 0;
+    left: 0;
+    width: 44px;
+    height: 44px;
+}
+
+/* Knob Component */
+.knob-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+}
+
+.knob-ticks {
+    position: absolute;
+    inset: -15px;
+    pointer-events: none;
+}
+
+.knob-tick {
+    position: absolute;
+    width: 2px;
+    height: 6px;
+    background: var(--shadow-dark);
+    border-radius: 1px;
+}
+
+.knob-body {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background: var(--bg-color);
+    box-shadow: 
+        6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light);
+    border: 4px solid var(--component-color);
+    cursor: grab;
+}
+
+.knob-body:active {
+    cursor: grabbing;
+}
+
+.knob-pointer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--component-color);
+    transform: translate(-50%, -50%);
+    box-shadow: 
+        2px 2px 4px var(--shadow-dark),
+        -1px -1px 2px var(--shadow-light);
+}
+
+/* Spinner Component - styles are set inline in JS */
+
+/* Audio Slider Component */
+.audio-grille {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: calc(100% - 70px);
+    top: 16px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.audio-bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--bg-color);
+    box-shadow: 
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.audio-bar.active .audio-bar-fill {
+    opacity: 1;
+}
+
+.audio-bar-fill {
+    position: absolute;
+    inset: 2px;
+    border-radius: 3px;
+    background: var(--component-color);
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.component.audio-slider-horizontal .audio-grille {
+    width: calc(100% - 32px);
+    height: 70%;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    flex-direction: row;
+}
+
+.component.audio-slider-horizontal .audio-bar {
+    height: 100%;
+    width: 10px;
+}
+
+.audio-handle {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--bg-color);
+    box-shadow: 
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+.audio-handle:active {
+    cursor: grabbing;
+    box-shadow: 
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
+}
+
+.audio-handle-line {
+    width: 20px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--shadow-dark);
+}
+
+/* Rapid Fire Button Component */
+.rapid-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    background: var(--bg-color);
+    box-shadow: 
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
+}
+
+.rapid-progress {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.rapid-progress svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.rapid-progress circle {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+}
+
+.rapid-progress .progress-bg {
+    stroke: var(--shadow-dark);
+    opacity: 0.3;
+}
+
+.rapid-progress .progress-fill {
+    stroke: var(--component-color);
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    transition: stroke-dashoffset 0.1s ease;
+}
+
+.rapid-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 55%;
+    height: 55%;
+    border-radius: 50%;
+    background: var(--bg-color);
+    box-shadow: 
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
+    border: 3px solid var(--component-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s ease;
+}
+
+.rapid-btn svg {
+    width: 40%;
+    height: 40%;
+    stroke: var(--component-color);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+.component:active .rapid-btn {
+    box-shadow: 
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+/* Switch Component */
+.switch-track {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 40%;
+    border-radius: 20px;
+    background: var(--bg-color);
+    box-shadow: 
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
+    transition: background 0.3s ease;
+}
+
+.switch-track.on {
+    background: var(--component-color);
+    box-shadow: 
+        inset 3px 3px 6px rgba(0, 0, 0, 0.2),
+        inset -3px -3px 6px rgba(255, 255, 255, 0.3);
+}
+
+.switch-knob {
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 75%;
+    border-radius: 50%;
+    background: var(--bg-color);
+    box-shadow: 
+        3px 3px 6px var(--shadow-dark),
+        -3px -3px 6px var(--shadow-light);
+    transform: translateY(-50%);
+    left: 15%;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switch-track.on .switch-knob {
+    left: 55%;
+}
+
+/* Transition Animation */
+.grid-transition-out {
+    animation: slideOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.grid-transition-in {
+    animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideOut {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-100vh); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
