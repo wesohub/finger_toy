@@ -15,7 +15,7 @@ export class ButtonComponent extends BaseComponent {
             height: 65%;
             border-radius: 12px;
             background: var(--component-color);
-            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            box-shadow: var(--s4) var(--s4) var(--b8) var(--shadow-dark), calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
             transition: all 0.15s ease;
         `;
         
@@ -28,7 +28,7 @@ export class ButtonComponent extends BaseComponent {
         if (this.isCompleted) return;
         e.preventDefault();
         
-        this.btnInner.style.boxShadow = 'inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.1)';
+        this.btnInner.style.boxShadow = 'inset var(--s3) var(--s3) var(--b6) rgba(0, 0, 0, 0.2), inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) rgba(255, 255, 255, 0.1)';
         this.btnInner.style.transform = 'translate(-50%, -50%) scale(0.95)';
         
         this.soundManager.playClick();

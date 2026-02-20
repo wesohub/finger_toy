@@ -38,7 +38,7 @@ export class TapButtonComponent extends BaseComponent {
                 height: 8%;
                 border-radius: 50%;
                 background: var(--bg-color);
-                box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+                box-shadow: inset var(--s2) var(--s2) var(--b4) var(--shadow-dark), inset calc(var(--s2) * -1) calc(var(--s2) * -1) var(--b4) var(--shadow-light);
                 transform: translate(-50%, -50%);
                 overflow: hidden;
             `;
@@ -70,8 +70,8 @@ export class TapButtonComponent extends BaseComponent {
             height: 45%;
             border-radius: 50%;
             background: var(--bg-color);
-            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-            border: 3px solid var(--component-color);
+            box-shadow: var(--s4) var(--s4) var(--b8) var(--shadow-dark), calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
+            border: var(--border-width-btn) solid var(--component-color);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -93,7 +93,7 @@ export class TapButtonComponent extends BaseComponent {
         if (this.isCompleted) return;
         e.preventDefault();
         
-        this.btn.style.boxShadow = 'inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light)';
+        this.btn.style.boxShadow = 'inset var(--s3) var(--s3) var(--b6) var(--shadow-dark), inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light)';
         this.soundManager.playClick();
         
         this.progress += 1 / this.clicksRequired;
@@ -116,6 +116,6 @@ export class TapButtonComponent extends BaseComponent {
     }
 
     onUp() {
-        this.btn.style.boxShadow = '4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light)';
+        this.btn.style.boxShadow = 'var(--s4) var(--s4) var(--b8) var(--shadow-dark), calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light)';
     }
 }

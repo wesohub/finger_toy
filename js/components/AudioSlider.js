@@ -68,7 +68,7 @@ export class AudioSliderComponent extends BaseComponent {
                     width: ${barSize}px;
                     border-radius: 5px;
                     background: var(--bg-color);
-                    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+                    box-shadow: inset var(--s2) var(--s2) var(--b4) var(--shadow-dark), inset calc(var(--s2) * -1) calc(var(--s2) * -1) var(--b4) var(--shadow-light);
                     position: relative;
                     overflow: hidden;
                 `;
@@ -78,7 +78,7 @@ export class AudioSliderComponent extends BaseComponent {
                     height: ${barSize}px;
                     border-radius: 5px;
                     background: var(--bg-color);
-                    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+                    box-shadow: inset var(--s2) var(--s2) var(--b4) var(--shadow-dark), inset calc(var(--s2) * -1) calc(var(--s2) * -1) var(--b4) var(--shadow-light);
                     position: relative;
                     overflow: hidden;
                 `;

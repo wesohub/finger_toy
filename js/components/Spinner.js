@@ -64,8 +64,8 @@ export class SpinnerComponent extends BaseComponent {
                 height: ${bladeRadius}%;
                 border-radius: 50%;
                 background: var(--bg-color);
-                box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
-                border: 3px solid var(--component-color);
+                box-shadow: var(--s2) var(--s2) var(--b4) var(--shadow-dark), calc(var(--s2) * -1) calc(var(--s2) * -1) var(--b4) var(--shadow-light);
+                border: var(--border-width-btn) solid var(--component-color);
                 transform: translate(-50%, -50%);
             `;
             this.blades.appendChild(blade);
@@ -82,7 +82,7 @@ export class SpinnerComponent extends BaseComponent {
             height: 16%;
             border-radius: 50%;
             background: var(--component-color);
-            box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+            box-shadow: var(--s2) var(--s2) var(--b4) var(--shadow-dark), calc(var(--s2) * -1) calc(var(--s2) * -1) var(--b4) var(--shadow-light);
             transform: translate(-50%, -50%);
         `;
         
@@ -96,7 +96,7 @@ export class SpinnerComponent extends BaseComponent {
             height: 8%;
             border-radius: 50%;
             background: var(--bg-color);
-            box-shadow: inset 1px 1px 2px var(--shadow-dark), inset -1px -1px 2px var(--shadow-light);
+            box-shadow: inset var(--s2) var(--s2) var(--b4) var(--shadow-dark), inset calc(var(--s2) * -1) calc(var(--s2) * -1) var(--b4) var(--shadow-light);
             transform: translate(-50%, -50%);
         `;
         

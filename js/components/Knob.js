@@ -39,8 +39,8 @@ export class KnobComponent extends BaseComponent {
             height: 65%;
             border-radius: 50%;
             background: var(--bg-color);
-            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
-            border: 3px solid var(--component-color);
+            box-shadow: var(--s6) var(--s6) var(--b12) var(--shadow-dark), calc(var(--s6) * -1) calc(var(--s6) * -1) var(--b12) var(--shadow-light);
+            border: var(--border-width-btn) solid var(--component-color);
             cursor: grab;
             transform: translate(-50%, -50%);
         `;
@@ -53,7 +53,6 @@ export class KnobComponent extends BaseComponent {
             height: 12px;
             border-radius: 50%;
             background: var(--component-color);
-            box-shadow: 2px 2px 4px var(--shadow-dark), -1px -1px 2px var(--shadow-light);
             transform: translate(-50%, -50%);
         `;
         this.knobBody.appendChild(this.pointer);

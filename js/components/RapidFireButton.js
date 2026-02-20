@@ -6,7 +6,8 @@ export class RapidFireButtonComponent extends BaseComponent {
         
         this.progress = 0;
         this.isPressed = false;
-        this.accumulateSpeed = 0.008;
+        this.accumulateSpeed = 0.8;
+        this.lastFrameTime = 0;
         
         this.ring = document.createElement('div');
         this.ring.className = 'rapid-ring';
@@ -19,7 +20,7 @@ export class RapidFireButtonComponent extends BaseComponent {
             height: 85%;
             border-radius: 50%;
             background: var(--bg-color);
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            box-shadow: inset var(--s3) var(--s3) var(--b6) var(--shadow-dark), inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light);
         `;
         
         this.progressEl = document.createElement('div');
@@ -50,8 +51,8 @@ export class RapidFireButtonComponent extends BaseComponent {
             height: 55%;
             border-radius: 50%;
             background: var(--bg-color);
-            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-            border: 3px solid var(--component-color);
+            box-shadow: var(--s4) var(--s4) var(--b8) var(--shadow-dark), calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
+            border: var(--border-width-btn) solid var(--component-color);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -82,17 +83,25 @@ export class RapidFireButtonComponent extends BaseComponent {
         if (this.isCompleted) return;
         e.preventDefault();
         this.isPressed = true;
+        this.lastFrameTime = 0;
         
-        this.btn.style.boxShadow = 'inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light)';
+        this.btn.style.boxShadow = 'inset var(--s3) var(--s3) var(--b6) var(--shadow-dark), inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light)';
         this.soundManager.playClick();
         
-        this.accumulate();
+        requestAnimationFrame((ts) => this.accumulate(ts));
     }
 
-    accumulate() {
+    accumulate(timestamp) {
         if (!this.isPressed || this.isCompleted) return;
         
-        this.progress += this.accumulateSpeed;
+        if (!this.lastFrameTime) {
+            this.lastFrameTime = timestamp;
+        }
+        
+        const deltaTime = (timestamp - this.lastFrameTime) / 1000;
+        this.lastFrameTime = timestamp;
+        
+        this.progress += this.accumulateSpeed * deltaTime;
         this.updateProgress();
         
         this.soundManager.playProgress(this.progress);
@@ -102,11 +111,12 @@ export class RapidFireButtonComponent extends BaseComponent {
             return;
         }
         
-        requestAnimationFrame(() => this.accumulate());
+        requestAnimationFrame((ts) => this.accumulate(ts));
     }
 
     onUp() {
         this.isPressed = false;
-        this.btn.style.boxShadow = '4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light)';
+        this.lastFrameTime = 0;
+        this.btn.style.boxShadow = 'var(--s4) var(--s4) var(--b8) var(--shadow-dark), calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light)';
     }
 }
