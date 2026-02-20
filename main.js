@@ -22,6 +22,9 @@ function resize() {
     const GRID_OFFSET_X = (window.innerWidth - gridWidth) / 2;
     const GRID_OFFSET_Y = (window.innerHeight - gridHeight) / 2;
     
+    const borderWidth = Math.max(1, Math.round(CELL_SIZE * 0.02));
+    document.documentElement.style.setProperty('--border-width', `${borderWidth}px`);
+    
     gridManager.resize(CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y);
 }
 

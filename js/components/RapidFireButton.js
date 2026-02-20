@@ -20,7 +20,7 @@ export class RapidFireButtonComponent extends BaseComponent {
             height: 85%;
             border-radius: 50%;
             background: var(--bg-color);
-            box-shadow: inset var(--s3) var(--s3) var(--b6) var(--shadow-dark), inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
         `;
         
         this.progressEl = document.createElement('div');
@@ -51,8 +51,8 @@ export class RapidFireButtonComponent extends BaseComponent {
             height: 55%;
             border-radius: 50%;
             background: var(--bg-color);
-            box-shadow: var(--s4) var(--s4) var(--b8) var(--shadow-dark), calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
-            border: var(--border-width-btn) solid var(--component-color);
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            border: var(--border-width) solid var(--component-color);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -85,7 +85,7 @@ export class RapidFireButtonComponent extends BaseComponent {
         this.isPressed = true;
         this.lastFrameTime = 0;
         
-        this.btn.style.boxShadow = 'inset var(--s3) var(--s3) var(--b6) var(--shadow-dark), inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light)';
+        this.btn.style.boxShadow = 'inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light)';
         this.soundManager.playClick();
         
         requestAnimationFrame((ts) => this.accumulate(ts));
@@ -117,6 +117,6 @@ export class RapidFireButtonComponent extends BaseComponent {
     onUp() {
         this.isPressed = false;
         this.lastFrameTime = 0;
-        this.btn.style.boxShadow = 'var(--s4) var(--s4) var(--b8) var(--shadow-dark), calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light)';
+        this.btn.style.boxShadow = '4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light)';
     }
 }

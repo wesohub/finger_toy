@@ -3,6 +3,7 @@
     --shadow-dark: #a3b1c6;
     --shadow-light: #ffffff;
     --text-color: #5a6a7a;
+    --border-width: 3px;
     
     --color-red: #ff6b6b;
     --color-teal: #4ecdc4;
@@ -11,17 +12,6 @@
     --color-blue: #4d96ff;
     --color-purple: #9d4edd;
     --color-orange: #ff9f43;
-    
-    --border-width: clamp(1px, 0.15vw, 2px);
-    --border-width-btn: clamp(1.5px, 0.22vw, 3px);
-    --s6: clamp(2px, 0.45vw, 6px);
-    --s4: clamp(1.3px, 0.3vw, 4px);
-    --s3: clamp(1px, 0.22vw, 3px);
-    --s2: clamp(0.7px, 0.15vw, 2px);
-    --b12: clamp(4px, 0.9vw, 12px);
-    --b8: clamp(2.7px, 0.6vw, 8px);
-    --b6: clamp(2px, 0.45vw, 6px);
-    --b4: clamp(1.3px, 0.3vw, 4px);
 }
 
 * {
@@ -60,8 +50,8 @@ body, html {
     border-radius: 16px;
     background: var(--bg-color);
     box-shadow: 
-        var(--s6) var(--s6) var(--b12) var(--shadow-dark),
-        calc(var(--s6) * -1) calc(var(--s6) * -1) var(--b12) var(--shadow-light);
+        6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light);
     transition: box-shadow 0.2s ease, transform 0.15s ease;
     cursor: pointer;
     user-select: none;
@@ -69,9 +59,9 @@ body, html {
 
 .component.completed {
     box-shadow: 
-        var(--s6) var(--s6) var(--b12) var(--shadow-dark),
-        calc(var(--s6) * -1) calc(var(--s6) * -1) var(--b12) var(--shadow-light),
-        inset 0 0 0 var(--border-width) var(--component-color);
+        6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light),
+        inset 0 0 0 calc(var(--border-width) * 0.67) var(--component-color);
 }
 
 .component.completed::after {
@@ -101,8 +91,8 @@ body, html {
     border-radius: 12px;
     background: var(--component-color);
     box-shadow: 
-        var(--s4) var(--s4) var(--b8) var(--shadow-dark),
-        calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
     transition: all 0.15s ease;
     display: flex;
     justify-content: center;
@@ -138,8 +128,8 @@ body, html {
     border-radius: 22px;
     background: var(--bg-color);
     box-shadow: 
-        inset var(--s4) var(--s4) var(--b8) var(--shadow-dark),
-        inset calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
+        inset 4px 4px 8px var(--shadow-dark),
+        inset -4px -4px 8px var(--shadow-light);
 }
 
 .slider-track::before {
@@ -152,8 +142,8 @@ body, html {
     border-radius: 26px;
     background: var(--bg-color);
     box-shadow: 
-        inset var(--s2) var(--s2) var(--b4) var(--shadow-dark),
-        inset calc(var(--s2) * -1) calc(var(--s2) * -1) var(--b4) var(--shadow-light);
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
     z-index: -1;
 }
 
@@ -174,18 +164,18 @@ body, html {
     border-radius: 22px;
     background: var(--bg-color);
     box-shadow: 
-        inset var(--s3) var(--s3) var(--b6) var(--shadow-dark),
-        inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light);
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
     cursor: grab;
     transition: box-shadow 0.15s ease;
-    border: var(--border-width-btn) solid var(--component-color);
+    border: var(--border-width) solid var(--component-color);
 }
 
 .slider-handle:active {
     cursor: grabbing;
     box-shadow: 
-        inset var(--s4) var(--s4) var(--b8) var(--shadow-dark),
-        inset calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
+        inset 4px 4px 8px var(--shadow-dark),
+        inset -4px -4px 8px var(--shadow-light);
 }
 
 .component.slider-horizontal .slider-track {
@@ -250,9 +240,9 @@ body, html {
     border-radius: 50%;
     background: var(--bg-color);
     box-shadow: 
-        var(--s6) var(--s6) var(--b12) var(--shadow-dark),
-        calc(var(--s6) * -1) calc(var(--s6) * -1) var(--b12) var(--shadow-light);
-    border: var(--border-width-btn) solid var(--component-color);
+        6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light);
+    border: var(--border-width) solid var(--component-color);
     cursor: grab;
 }
 
@@ -269,6 +259,9 @@ body, html {
     border-radius: 50%;
     background: var(--component-color);
     transform: translate(-50%, -50%);
+    box-shadow: 
+        2px 2px 4px var(--shadow-dark),
+        -1px -1px 2px var(--shadow-light);
 }
 
 /* Spinner Component - styles are set inline in JS */
@@ -293,8 +286,8 @@ body, html {
     border-radius: 4px;
     background: var(--bg-color);
     box-shadow: 
-        inset var(--s2) var(--s2) var(--b4) var(--shadow-dark),
-        inset calc(var(--s2) * -1) calc(var(--s2) * -1) var(--b4) var(--shadow-light);
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
     position: relative;
     overflow: hidden;
 }
@@ -335,8 +328,8 @@ body, html {
     border-radius: 10px;
     background: var(--bg-color);
     box-shadow: 
-        var(--s4) var(--s4) var(--b8) var(--shadow-dark),
-        calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
     cursor: grab;
     display: flex;
     flex-direction: column;
@@ -348,8 +341,8 @@ body, html {
 .audio-handle:active {
     cursor: grabbing;
     box-shadow: 
-        inset var(--s4) var(--s4) var(--b8) var(--shadow-dark),
-        inset calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
 }
 
 .audio-handle-line {
@@ -370,8 +363,8 @@ body, html {
     border-radius: 50%;
     background: var(--bg-color);
     box-shadow: 
-        inset var(--s3) var(--s3) var(--b6) var(--shadow-dark),
-        inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light);
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
 }
 
 .rapid-progress {
@@ -419,9 +412,9 @@ body, html {
     border-radius: 50%;
     background: var(--bg-color);
     box-shadow: 
-        var(--s4) var(--s4) var(--b8) var(--shadow-dark),
-        calc(var(--s4) * -1) calc(var(--s4) * -1) var(--b8) var(--shadow-light);
-    border: var(--border-width-btn) solid var(--component-color);
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
+    border: var(--border-width) solid var(--component-color);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -440,8 +433,8 @@ body, html {
 
 .component:active .rapid-btn {
     box-shadow: 
-        inset var(--s3) var(--s3) var(--b6) var(--shadow-dark),
-        inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light);
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
     transform: translate(-50%, -50%) scale(0.95);
 }
 
@@ -456,16 +449,16 @@ body, html {
     border-radius: 20px;
     background: var(--bg-color);
     box-shadow: 
-        inset var(--s3) var(--s3) var(--b6) var(--shadow-dark),
-        inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light);
+        inset 3px 3px 6px var(--shadow-dark),
+        inset -3px -3px 6px var(--shadow-light);
     transition: background 0.3s ease;
 }
 
 .switch-track.on {
     background: var(--component-color);
     box-shadow: 
-        inset var(--s3) var(--s3) var(--b6) rgba(0, 0, 0, 0.2),
-        inset calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) rgba(255, 255, 255, 0.3);
+        inset 3px 3px 6px rgba(0, 0, 0, 0.2),
+        inset -3px -3px 6px rgba(255, 255, 255, 0.3);
 }
 
 .switch-knob {
@@ -476,8 +469,8 @@ body, html {
     border-radius: 50%;
     background: var(--bg-color);
     box-shadow: 
-        var(--s3) var(--s3) var(--b6) var(--shadow-dark),
-        calc(var(--s3) * -1) calc(var(--s3) * -1) var(--b6) var(--shadow-light);
+        3px 3px 6px var(--shadow-dark),
+        -3px -3px 6px var(--shadow-light);
     transform: translateY(-50%);
     left: 15%;
     transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
