@@ -45,31 +45,44 @@ export class SoundManager {
         const t = this.ctx.currentTime;
         
         const fundamental = this.ctx.createOscillator();
-        fundamental.type = 'sine';
-        fundamental.frequency.setValueAtTime(180, t);
-        fundamental.frequency.exponentialRampToValueAtTime(80, t + 0.08);
+        fundamental.type = 'sawtooth';
+        fundamental.frequency.setValueAtTime(450, t);
+        fundamental.frequency.exponentialRampToValueAtTime(150, t + 0.025);
         
         const harmonic = this.ctx.createOscillator();
-        harmonic.type = 'sine';
-        harmonic.frequency.setValueAtTime(360, t);
-        harmonic.frequency.exponentialRampToValueAtTime(160, t + 0.06);
+        harmonic.type = 'sawtooth';
+        harmonic.frequency.setValueAtTime(900, t);
+        harmonic.frequency.exponentialRampToValueAtTime(300, t + 0.01);
         
         const lowpass = this.ctx.createBiquadFilter();
         lowpass.type = 'lowpass';
-        lowpass.frequency.setValueAtTime(2000, t);
-        lowpass.frequency.exponentialRampToValueAtTime(400, t + 0.08);
-        lowpass.Q.value = 1;
+        lowpass.frequency.setValueAtTime(4500, t);
+        lowpass.frequency.exponentialRampToValueAtTime(800, t + 0.025);
+        lowpass.Q.value = 1.3;
+        
+        const modOsc = this.ctx.createOscillator();
+        modOsc.type = 'sine';
+        modOsc.frequency.setValueAtTime(300, t);
+        modOsc.frequency.exponentialRampToValueAtTime(100, t + 0.02);
+        
+        const modGain = this.ctx.createGain();
+        modGain.gain.setValueAtTime(0, t);
+        modGain.gain.linearRampToValueAtTime(12, t + 0.001);
+        modGain.gain.exponentialRampToValueAtTime(0.2, t + 0.02);
+        
+        modOsc.connect(modGain);
+        modGain.connect(fundamental.frequency);
         
         const gainMain = this.ctx.createGain();
         gainMain.gain.setValueAtTime(0, t);
-        gainMain.gain.linearRampToValueAtTime(0.55, t + 0.003);
-        gainMain.gain.setValueAtTime(0.55, t + 0.005);
-        gainMain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+        gainMain.gain.linearRampToValueAtTime(0.45, t + 0.001);
+        gainMain.gain.setValueAtTime(0.45, t + 0.002);
+        gainMain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
         
         const gainHarmonic = this.ctx.createGain();
         gainHarmonic.gain.setValueAtTime(0, t);
-        gainHarmonic.gain.linearRampToValueAtTime(0.2, t + 0.002);
-        gainHarmonic.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        gainHarmonic.gain.linearRampToValueAtTime(0.25, t + 0.001);
+        gainHarmonic.gain.exponentialRampToValueAtTime(0.001, t + 0.01);
         
         fundamental.connect(lowpass);
         lowpass.connect(gainMain);
@@ -78,20 +91,34 @@ export class SoundManager {
         harmonic.connect(gainHarmonic);
         gainHarmonic.connect(this.masterGain);
         
-        const { source: noise, filter: noiseFilter } = this.createFilteredNoise(0.02, 800, 2);
+        const { source: noise, filter: noiseFilter } = this.createFilteredNoise(0.035, 2500, 3);
         const noiseGain = this.ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.1, t);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
+        noiseGain.gain.setValueAtTime(0, t);
+        noiseGain.gain.linearRampToValueAtTime(0.4, t + 0.001);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
         
         noiseFilter.connect(noiseGain);
         noiseGain.connect(this.masterGain);
         
+        const { source: highNoise, filter: highNoiseFilter } = this.createFilteredNoise(0.015, 5000, 4.5);
+        const highNoiseGain = this.ctx.createGain();
+        highNoiseGain.gain.setValueAtTime(0, t);
+        highNoiseGain.gain.linearRampToValueAtTime(0.18, t + 0.0005);
+        highNoiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.008);
+        
+        highNoiseFilter.connect(highNoiseGain);
+        highNoiseGain.connect(this.masterGain);
+        
         fundamental.start(t);
-        fundamental.stop(t + 0.1);
+        fundamental.stop(t + 0.03);
         harmonic.start(t);
-        harmonic.stop(t + 0.08);
+        harmonic.stop(t + 0.015);
+        modOsc.start(t);
+        modOsc.stop(t + 0.025);
         noise.start(t);
-        noise.stop(t + 0.02);
+        noise.stop(t + 0.035);
+        highNoise.start(t);
+        highNoise.stop(t + 0.015);
     }
 
     playSwitch() {
@@ -167,7 +194,7 @@ export class SoundManager {
         
         this.slideGain = this.ctx.createGain();
         this.slideGain.gain.setValueAtTime(0, t);
-        this.slideGain.gain.linearRampToValueAtTime(0.1, t + 0.08);
+        this.slideGain.gain.linearRampToValueAtTime(0.18, t + 0.08);
         
         this.slideOsc.connect(this.slideFilter);
         this.slideFilter.connect(this.slideGain);
@@ -185,7 +212,7 @@ export class SoundManager {
         
         this.slideNoiseGain = this.ctx.createGain();
         this.slideNoiseGain.gain.setValueAtTime(0, t);
-        this.slideNoiseGain.gain.linearRampToValueAtTime(0.02, t + 0.08);
+        this.slideNoiseGain.gain.linearRampToValueAtTime(0.04, t + 0.08);
         
         this.slideNoise.connect(noiseFilter);
         noiseFilter.connect(this.slideNoiseGain);
@@ -208,7 +235,7 @@ export class SoundManager {
         }
         
         if (this.slideGain) {
-            const vol = 0.08 + value * 0.06;
+            const vol = 0.16 + value * 0.03;
             this.slideGain.gain.linearRampToValueAtTime(vol, t + 0.03);
         }
     }
@@ -484,7 +511,7 @@ export class SoundManager {
         lowpass.frequency.value = 800 + progress * 400;
         lowpass.Q.value = 0.8;
         
-        const volume = 0.2 + progress * 0.25;
+        const volume = 0.35 + progress * 0.2;
         const gain = this.ctx.createGain();
         gain.gain.setValueAtTime(volume, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
