@@ -6,13 +6,14 @@ export class SoundManager {
         this.masterGain.connect(this.ctx.destination);
         
         this.lastProgressTime = 0;
-        this.lastSlideFreq = 0;
+        this.lastSlideTime = 0;
         this.slideOsc = null;
         this.slideGain = null;
         this.slideNoise = null;
         this.slideNoiseGain = null;
         this.slideFilter = null;
         this.isSlideActive = false;
+        this.isSpinActive = false;
     }
 
     createNoiseBuffer(duration) {
@@ -45,44 +46,31 @@ export class SoundManager {
         const t = this.ctx.currentTime;
         
         const fundamental = this.ctx.createOscillator();
-        fundamental.type = 'sawtooth';
-        fundamental.frequency.setValueAtTime(450, t);
-        fundamental.frequency.exponentialRampToValueAtTime(150, t + 0.025);
+        fundamental.type = 'sine';
+        fundamental.frequency.setValueAtTime(220, t);
+        fundamental.frequency.exponentialRampToValueAtTime(200, t + 0.08);
         
         const harmonic = this.ctx.createOscillator();
-        harmonic.type = 'sawtooth';
-        harmonic.frequency.setValueAtTime(900, t);
-        harmonic.frequency.exponentialRampToValueAtTime(300, t + 0.01);
+        harmonic.type = 'sine';
+        harmonic.frequency.setValueAtTime(440, t);
+        harmonic.frequency.exponentialRampToValueAtTime(400, t + 0.06);
         
         const lowpass = this.ctx.createBiquadFilter();
         lowpass.type = 'lowpass';
-        lowpass.frequency.setValueAtTime(4500, t);
-        lowpass.frequency.exponentialRampToValueAtTime(800, t + 0.025);
-        lowpass.Q.value = 1.3;
-        
-        const modOsc = this.ctx.createOscillator();
-        modOsc.type = 'sine';
-        modOsc.frequency.setValueAtTime(300, t);
-        modOsc.frequency.exponentialRampToValueAtTime(100, t + 0.02);
-        
-        const modGain = this.ctx.createGain();
-        modGain.gain.setValueAtTime(0, t);
-        modGain.gain.linearRampToValueAtTime(12, t + 0.001);
-        modGain.gain.exponentialRampToValueAtTime(0.2, t + 0.02);
-        
-        modOsc.connect(modGain);
-        modGain.connect(fundamental.frequency);
+        lowpass.frequency.setValueAtTime(2000, t);
+        lowpass.frequency.exponentialRampToValueAtTime(600, t + 0.08);
+        lowpass.Q.value = 1;
         
         const gainMain = this.ctx.createGain();
         gainMain.gain.setValueAtTime(0, t);
-        gainMain.gain.linearRampToValueAtTime(0.45, t + 0.001);
-        gainMain.gain.setValueAtTime(0.45, t + 0.002);
-        gainMain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+        gainMain.gain.linearRampToValueAtTime(0.55, t + 0.003);
+        gainMain.gain.setValueAtTime(0.55, t + 0.005);
+        gainMain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
         
         const gainHarmonic = this.ctx.createGain();
         gainHarmonic.gain.setValueAtTime(0, t);
-        gainHarmonic.gain.linearRampToValueAtTime(0.25, t + 0.001);
-        gainHarmonic.gain.exponentialRampToValueAtTime(0.001, t + 0.01);
+        gainHarmonic.gain.linearRampToValueAtTime(0.2, t + 0.002);
+        gainHarmonic.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
         
         fundamental.connect(lowpass);
         lowpass.connect(gainMain);
@@ -91,34 +79,20 @@ export class SoundManager {
         harmonic.connect(gainHarmonic);
         gainHarmonic.connect(this.masterGain);
         
-        const { source: noise, filter: noiseFilter } = this.createFilteredNoise(0.035, 2500, 3);
+        const { source: noise, filter: noiseFilter } = this.createFilteredNoise(0.02, 800, 2);
         const noiseGain = this.ctx.createGain();
-        noiseGain.gain.setValueAtTime(0, t);
-        noiseGain.gain.linearRampToValueAtTime(0.4, t + 0.001);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+        noiseGain.gain.setValueAtTime(0.1, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
         
         noiseFilter.connect(noiseGain);
         noiseGain.connect(this.masterGain);
         
-        const { source: highNoise, filter: highNoiseFilter } = this.createFilteredNoise(0.015, 5000, 4.5);
-        const highNoiseGain = this.ctx.createGain();
-        highNoiseGain.gain.setValueAtTime(0, t);
-        highNoiseGain.gain.linearRampToValueAtTime(0.18, t + 0.0005);
-        highNoiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.008);
-        
-        highNoiseFilter.connect(highNoiseGain);
-        highNoiseGain.connect(this.masterGain);
-        
         fundamental.start(t);
-        fundamental.stop(t + 0.03);
+        fundamental.stop(t + 0.1);
         harmonic.start(t);
-        harmonic.stop(t + 0.015);
-        modOsc.start(t);
-        modOsc.stop(t + 0.025);
+        harmonic.stop(t + 0.08);
         noise.start(t);
-        noise.stop(t + 0.035);
-        highNoise.start(t);
-        highNoise.stop(t + 0.015);
+        noise.stop(t + 0.02);
     }
 
     playSwitch() {
@@ -127,20 +101,20 @@ export class SoundManager {
         
         const osc1 = this.ctx.createOscillator();
         osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(150, t);
+        osc1.frequency.setValueAtTime(220, t);
         osc1.frequency.exponentialRampToValueAtTime(400, t + 0.03);
-        osc1.frequency.exponentialRampToValueAtTime(200, t + 0.12);
+        osc1.frequency.exponentialRampToValueAtTime(280, t + 0.12);
         
         const osc2 = this.ctx.createOscillator();
         osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(300, t);
+        osc2.frequency.setValueAtTime(440, t);
         osc2.frequency.exponentialRampToValueAtTime(800, t + 0.03);
-        osc2.frequency.exponentialRampToValueAtTime(400, t + 0.1);
+        osc2.frequency.exponentialRampToValueAtTime(560, t + 0.1);
         
         const lowpass = this.ctx.createBiquadFilter();
         lowpass.type = 'lowpass';
         lowpass.frequency.setValueAtTime(3000, t);
-        lowpass.frequency.exponentialRampToValueAtTime(600, t + 0.15);
+        lowpass.frequency.exponentialRampToValueAtTime(800, t + 0.15);
         lowpass.Q.value = 2;
         
         const gain1 = this.ctx.createGain();
@@ -178,164 +152,133 @@ export class SoundManager {
     }
 
     playSlide() {
+        this.playClick();
+    }
+
+    playSlideMove() {
         if (this.ctx.state === 'suspended') this.ctx.resume();
-        if (this.isSlideActive) return;
         
-        const t = this.ctx.currentTime;
+        const now = this.ctx.currentTime;
+        if (now - this.lastSlideTime < 0.03) return;
+        this.lastSlideTime = now;
         
-        this.slideOsc = this.ctx.createOscillator();
-        this.slideOsc.type = 'sine';
-        this.slideOsc.frequency.setValueAtTime(200, t);
-        
-        this.slideFilter = this.ctx.createBiquadFilter();
-        this.slideFilter.type = 'lowpass';
-        this.slideFilter.frequency.value = 600;
-        this.slideFilter.Q.value = 0.5;
-        
-        this.slideGain = this.ctx.createGain();
-        this.slideGain.gain.setValueAtTime(0, t);
-        this.slideGain.gain.linearRampToValueAtTime(0.18, t + 0.08);
-        
-        this.slideOsc.connect(this.slideFilter);
-        this.slideFilter.connect(this.slideGain);
-        this.slideGain.connect(this.masterGain);
-        
-        const noiseBuffer = this.createNoiseBuffer(2);
-        this.slideNoise = this.ctx.createBufferSource();
-        this.slideNoise.buffer = noiseBuffer;
-        this.slideNoise.loop = true;
-        
-        const noiseFilter = this.ctx.createBiquadFilter();
-        noiseFilter.type = 'lowpass';
-        noiseFilter.frequency.value = 300;
-        noiseFilter.Q.value = 1;
-        
-        this.slideNoiseGain = this.ctx.createGain();
-        this.slideNoiseGain.gain.setValueAtTime(0, t);
-        this.slideNoiseGain.gain.linearRampToValueAtTime(0.04, t + 0.08);
-        
-        this.slideNoise.connect(noiseFilter);
-        noiseFilter.connect(this.slideNoiseGain);
-        this.slideNoiseGain.connect(this.masterGain);
-        
-        this.slideOsc.start(t);
-        this.slideNoise.start(t);
-        this.isSlideActive = true;
-    }
-
-    updateSlideSound(value) {
-        if (!this.isSlideActive || !this.slideOsc) return;
-        
-        const t = this.ctx.currentTime;
-        const freq = 180 + value * 80;
-        this.slideOsc.frequency.linearRampToValueAtTime(freq, t + 0.03);
-        
-        if (this.slideFilter) {
-            this.slideFilter.frequency.linearRampToValueAtTime(500 + value * 200, t + 0.03);
-        }
-        
-        if (this.slideGain) {
-            const vol = 0.16 + value * 0.03;
-            this.slideGain.gain.linearRampToValueAtTime(vol, t + 0.03);
-        }
-    }
-
-    stopSlide() {
-        if (!this.isSlideActive) return;
-        
-        const t = this.ctx.currentTime;
-        
-        if (this.slideGain) {
-            this.slideGain.gain.linearRampToValueAtTime(0, t + 0.12);
-        }
-        if (this.slideNoiseGain) {
-            this.slideNoiseGain.gain.linearRampToValueAtTime(0, t + 0.12);
-        }
-        
-        const osc = this.slideOsc;
-        const noise = this.slideNoise;
-        
-        setTimeout(() => {
-            if (osc) { try { osc.stop(); } catch(e) {} }
-            if (noise) { try { noise.stop(); } catch(e) {} }
-        }, 150);
-        
-        this.slideOsc = null;
-        this.slideGain = null;
-        this.slideNoise = null;
-        this.slideNoiseGain = null;
-        this.slideFilter = null;
-        this.isSlideActive = false;
-    }
-
-    playSlideProgress(value) {
-        this.updateSlideSound(value);
-    }
-
-    playSpin(speed) {
-        if (this.ctx.state === 'suspended') this.ctx.resume();
-        const t = this.ctx.currentTime;
-        const duration = 0.4 + speed * 1.5;
-        const normalizedSpeed = Math.min(speed, 1);
-        
-        const wind1 = this.ctx.createOscillator();
-        wind1.type = 'sine';
-        wind1.frequency.setValueAtTime(60 + normalizedSpeed * 40, t);
-        wind1.frequency.linearRampToValueAtTime(30, t + duration);
-        
-        const wind2 = this.ctx.createOscillator();
-        wind2.type = 'sine';
-        wind2.frequency.setValueAtTime(120 + normalizedSpeed * 80, t);
-        wind2.frequency.linearRampToValueAtTime(50, t + duration);
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(200, now);
         
         const lowpass = this.ctx.createBiquadFilter();
         lowpass.type = 'lowpass';
-        lowpass.frequency.setValueAtTime(400 + normalizedSpeed * 200, t);
-        lowpass.frequency.linearRampToValueAtTime(100, t + duration);
-        lowpass.Q.value = 0.7;
+        lowpass.frequency.value = 800;
+        lowpass.Q.value = 0.5;
         
-        const gain1 = this.ctx.createGain();
-        gain1.gain.setValueAtTime(0.15 + normalizedSpeed * 0.1, t);
-        gain1.gain.linearRampToValueAtTime(0.08, t + duration * 0.3);
-        gain1.gain.exponentialRampToValueAtTime(0.001, t + duration);
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
         
-        const gain2 = this.ctx.createGain();
-        gain2.gain.setValueAtTime(0.08 + normalizedSpeed * 0.05, t);
-        gain2.gain.linearRampToValueAtTime(0.04, t + duration * 0.3);
-        gain2.gain.exponentialRampToValueAtTime(0.001, t + duration);
+        osc.connect(lowpass);
+        lowpass.connect(gain);
+        gain.connect(this.masterGain);
         
-        wind1.connect(lowpass);
-        lowpass.connect(gain1);
-        gain1.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.05);
+    }
+
+    stopSlide() {
+    }
+
+    playSlideProgress(value) {
+        this.playSlideMove();
+    }
+
+    startSpin() {
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        if (this.isSpinActive) return;
         
-        wind2.connect(gain2);
-        gain2.connect(this.masterGain);
+        const t = this.ctx.currentTime;
         
-        const noiseBuffer = this.createNoiseBuffer(duration);
-        const windNoise = this.ctx.createBufferSource();
-        windNoise.buffer = noiseBuffer;
+        const noiseBuffer = this.createNoiseBuffer(2);
+        this.spinNoise = this.ctx.createBufferSource();
+        this.spinNoise.buffer = noiseBuffer;
+        this.spinNoise.loop = true;
         
-        const windFilter = this.ctx.createBiquadFilter();
-        windFilter.type = 'bandpass';
-        windFilter.frequency.setValueAtTime(150 + normalizedSpeed * 100, t);
-        windFilter.frequency.linearRampToValueAtTime(80, t + duration);
-        windFilter.Q.value = 0.5;
+        this.spinNoiseFilter = this.ctx.createBiquadFilter();
+        this.spinNoiseFilter.type = 'lowpass';
+        this.spinNoiseFilter.frequency.value = 300;
+        this.spinNoiseFilter.Q.value = 0.5;
         
-        const noiseGain = this.ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.06 + normalizedSpeed * 0.04, t);
-        noiseGain.gain.linearRampToValueAtTime(0.03, t + duration * 0.5);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+        this.spinNoiseGain = this.ctx.createGain();
+        this.spinNoiseGain.gain.setValueAtTime(0, t);
+        this.spinNoiseGain.gain.linearRampToValueAtTime(0.35, t + 0.1);
         
-        windNoise.connect(windFilter);
-        windFilter.connect(noiseGain);
-        noiseGain.connect(this.masterGain);
+        this.spinNoise.connect(this.spinNoiseFilter);
+        this.spinNoiseFilter.connect(this.spinNoiseGain);
+        this.spinNoiseGain.connect(this.masterGain);
         
-        wind1.start(t);
-        wind1.stop(t + duration + 0.1);
-        wind2.start(t);
-        wind2.stop(t + duration + 0.1);
-        windNoise.start(t);
-        windNoise.stop(t + duration);
+        this.spinNoise2 = this.ctx.createBufferSource();
+        this.spinNoise2.buffer = this.createNoiseBuffer(2);
+        this.spinNoise2.loop = true;
+        
+        this.spinNoiseFilter2 = this.ctx.createBiquadFilter();
+        this.spinNoiseFilter2.type = 'bandpass';
+        this.spinNoiseFilter2.frequency.value = 200;
+        this.spinNoiseFilter2.Q.value = 1;
+        
+        this.spinNoiseGain2 = this.ctx.createGain();
+        this.spinNoiseGain2.gain.setValueAtTime(0, t);
+        this.spinNoiseGain2.gain.linearRampToValueAtTime(0.25, t + 0.1);
+        
+        this.spinNoise2.connect(this.spinNoiseFilter2);
+        this.spinNoiseFilter2.connect(this.spinNoiseGain2);
+        this.spinNoiseGain2.connect(this.masterGain);
+        
+        this.spinNoise.start(t);
+        this.spinNoise2.start(t);
+        this.isSpinActive = true;
+    }
+
+    updateSpinSound(speed) {
+        if (!this.isSpinActive) return;
+        
+        const t = this.ctx.currentTime;
+        const normalizedSpeed = Math.min(speed, 1);
+        
+        this.spinNoiseFilter.frequency.linearRampToValueAtTime(300 + normalizedSpeed * 200, t + 0.03);
+        this.spinNoiseFilter2.frequency.linearRampToValueAtTime(200 + normalizedSpeed * 150, t + 0.03);
+        
+        const vol1 = 0.25 + normalizedSpeed * 0.2;
+        const vol2 = 0.15 + normalizedSpeed * 0.15;
+        this.spinNoiseGain.gain.linearRampToValueAtTime(vol1, t + 0.03);
+        this.spinNoiseGain2.gain.linearRampToValueAtTime(vol2, t + 0.03);
+    }
+
+    stopSpin() {
+        if (!this.isSpinActive) return;
+        
+        const t = this.ctx.currentTime;
+        
+        this.spinNoiseGain.gain.linearRampToValueAtTime(0, t + 0.2);
+        this.spinNoiseGain2.gain.linearRampToValueAtTime(0, t + 0.2);
+        
+        const noise1 = this.spinNoise;
+        const noise2 = this.spinNoise2;
+        
+        setTimeout(() => {
+            if (noise1) { try { noise1.stop(); } catch(e) {} }
+            if (noise2) { try { noise2.stop(); } catch(e) {} }
+        }, 250);
+        
+        this.spinNoise = null;
+        this.spinNoise2 = null;
+        this.spinNoiseFilter = null;
+        this.spinNoiseFilter2 = null;
+        this.spinNoiseGain = null;
+        this.spinNoiseGain2 = null;
+        this.isSpinActive = false;
+    }
+
+    playSpin(speed) {
+        this.startSpin();
+        this.updateSpinSound(speed);
     }
 
     playTone(freq) {
@@ -398,12 +341,12 @@ export class SoundManager {
         const t = this.ctx.currentTime;
         
         const progress = (index + 1) / total;
-        const baseFreq = 200 + progress * 150;
+        const baseFreq = 250 + progress * 150;
         
         const osc = this.ctx.createOscillator();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(baseFreq + 100, t);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq - 50, t + 0.025);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq, t + 0.025);
         
         const lowpass = this.ctx.createBiquadFilter();
         lowpass.type = 'lowpass';
@@ -499,7 +442,7 @@ export class SoundManager {
         if (now - this.lastProgressTime < 0.05) return;
         this.lastProgressTime = now;
         
-        const baseFreq = 150 + progress * 300;
+        const baseFreq = 220 + progress * 300;
         
         const osc = this.ctx.createOscillator();
         osc.type = 'sine';
@@ -562,13 +505,13 @@ export class SoundManager {
         
         const osc1 = this.ctx.createOscillator();
         osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(300, t);
-        osc1.frequency.exponentialRampToValueAtTime(120, t + 0.04);
+        osc1.frequency.setValueAtTime(320, t);
+        osc1.frequency.exponentialRampToValueAtTime(220, t + 0.04);
         
         const osc2 = this.ctx.createOscillator();
         osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(600, t);
-        osc2.frequency.exponentialRampToValueAtTime(240, t + 0.03);
+        osc2.frequency.setValueAtTime(640, t);
+        osc2.frequency.exponentialRampToValueAtTime(440, t + 0.03);
         
         const highClick = this.ctx.createOscillator();
         highClick.type = 'sine';
@@ -578,7 +521,7 @@ export class SoundManager {
         const lowpass = this.ctx.createBiquadFilter();
         lowpass.type = 'lowpass';
         lowpass.frequency.setValueAtTime(2500, t);
-        lowpass.frequency.exponentialRampToValueAtTime(400, t + 0.05);
+        lowpass.frequency.exponentialRampToValueAtTime(600, t + 0.05);
         lowpass.Q.value = 1;
         
         const gain1 = this.ctx.createGain();

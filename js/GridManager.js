@@ -232,32 +232,38 @@ export class GridManager {
         this.createGridElement(false);
         
         const newGrid = this.gridElement;
-        newGrid.style.transform = 'translateY(-100%)';
+        const newGridStartOffset = 150;
+        newGrid.style.transform = `translateY(-${newGridStartOffset}%)`;
         
         this.populateGrid();
         
+        const delay = 1000;
         const duration = 600;
-        const startTime = Date.now();
+        const extraDistance = 50;
         
-        const animate = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(1, elapsed / duration);
-            const ease = 1 - Math.pow(1 - progress, 3);
+        setTimeout(() => {
+            const startTime = Date.now();
             
-            prevGrid.style.transform = `translateY(${ease * 100}%)`;
-            newGrid.style.transform = `translateY(${-100 + ease * 100}%)`;
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(1, elapsed / duration);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                
+                prevGrid.style.transform = `translateY(${ease * (100 + extraDistance)}%)`;
+                newGrid.style.transform = `translateY(${-newGridStartOffset + ease * newGridStartOffset}%)`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    prevGrid.remove();
+                    prevComponents.forEach(c => c.destroy());
+                    newGrid.style.transform = '';
+                    this.isTransitioning = false;
+                }
+            };
             
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                prevGrid.remove();
-                prevComponents.forEach(c => c.destroy());
-                newGrid.style.transform = '';
-                this.isTransitioning = false;
-            }
-        };
-        
-        requestAnimationFrame(animate);
+            requestAnimationFrame(animate);
+        }, delay);
     }
 
     populateGrid() {

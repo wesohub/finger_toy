@@ -108,7 +108,7 @@ export class AudioSliderComponent extends BaseComponent {
         
         this.updateVisual();
         
-        this.grille.addEventListener('pointerdown', this.onDragStart.bind(this));
+        this.element.addEventListener('pointerdown', this.onDragStart.bind(this));
         document.addEventListener('pointermove', this.onDragMove.bind(this));
         document.addEventListener('pointerup', this.onDragEnd.bind(this));
         document.addEventListener('pointercancel', this.onDragEnd.bind(this));
@@ -131,27 +131,43 @@ export class AudioSliderComponent extends BaseComponent {
         if (this.isCompleted) return;
         e.preventDefault();
         this.dragging = true;
-        this.grille.setPointerCapture(e.pointerId);
-        this.updateValueFromPosition(e);
+        this.element.setPointerCapture(e.pointerId);
+        
+        if (this.value === 0) {
+            this.value = 1 / this.barCount;
+            this.updateVisual();
+            const noteIndex = 0;
+            this.soundManager.playDetent(noteIndex, this.barCount - 1);
+            this.lastToneIndex = noteIndex;
+        }
     }
 
     updateValueFromPosition(e) {
-        const rect = this.grille.getBoundingClientRect();
+        const rect = this.element.getBoundingClientRect();
         
+        let targetValue;
         if (this.isHorizontal) {
             const x = e.clientX - rect.left;
             const trackLength = rect.width;
-            
-            let val = x / trackLength;
-            this.value = Math.max(0, Math.min(1, val));
+            targetValue = x / trackLength;
         } else {
             const y = e.clientY - rect.top;
             const trackLength = rect.height;
-            
-            let val = 1 - (y / trackLength);
-            this.value = Math.max(0, Math.min(1, val));
+            targetValue = 1 - (y / trackLength);
         }
         
+        const currentNoteIndex = Math.floor(this.value * (this.barCount - 0.01));
+        const targetNoteIndex = Math.floor(targetValue * (this.barCount - 0.01));
+        
+        if (targetNoteIndex > currentNoteIndex + 1) {
+            this.value = (currentNoteIndex + 2) / this.barCount;
+        } else if (targetNoteIndex < currentNoteIndex) {
+            this.value = Math.max(1 / this.barCount, targetValue);
+        } else {
+            this.value = targetValue;
+        }
+        
+        this.value = Math.max(0, Math.min(1, this.value));
         this.updateVisual();
         
         const noteIndex = Math.floor(this.value * (this.barCount - 0.01));

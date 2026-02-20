@@ -40,7 +40,7 @@ export class KnobComponent extends BaseComponent {
             border-radius: 50%;
             background: var(--bg-color);
             box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
-            border: 4px solid var(--component-color);
+            border: 3px solid var(--component-color);
             cursor: grab;
             transform: translate(-50%, -50%);
         `;

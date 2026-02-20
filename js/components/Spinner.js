@@ -32,6 +32,8 @@ export class SpinnerComponent extends BaseComponent {
             transform-origin: center center;
         `;
         
+        this.bladeElements = [];
+        
         for (let i = 0; i < 3; i++) {
             const angle = (i * Math.PI * 2) / 3;
             
@@ -63,10 +65,11 @@ export class SpinnerComponent extends BaseComponent {
                 border-radius: 50%;
                 background: var(--bg-color);
                 box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
-                border: 2px solid var(--component-color);
+                border: 3px solid var(--component-color);
                 transform: translate(-50%, -50%);
             `;
             this.blades.appendChild(blade);
+            this.bladeElements.push(blade);
         }
         
         this.center = document.createElement('div');
@@ -112,6 +115,12 @@ export class SpinnerComponent extends BaseComponent {
         this.constantRotationPerMs = 0.025;
     }
 
+    updateBladeRotation() {
+        this.bladeElements.forEach(blade => {
+            blade.style.transform = `translate(-50%, -50%) rotate(${-this.spinAngle}rad)`;
+        });
+    }
+
     onDragStart(e) {
         if (this.isCompleted) return;
         e.preventDefault();
@@ -125,6 +134,8 @@ export class SpinnerComponent extends BaseComponent {
         this.lastAngle = Math.atan2(y - this.centerY, x - this.centerX);
         this.lastTime = Date.now();
         this.lastSoundTime = 0;
+        
+        this.soundManager.startSpin();
     }
 
     onDragMove(e) {
@@ -141,6 +152,7 @@ export class SpinnerComponent extends BaseComponent {
         
         this.spinAngle += delta;
         this.blades.style.transform = `translate(-50%, -50%) rotate(${this.spinAngle}rad)`;
+        this.updateBladeRotation();
         
         const now = Date.now();
         const dt = now - this.lastTime;
@@ -148,10 +160,7 @@ export class SpinnerComponent extends BaseComponent {
             const newVel = delta / (dt / 16);
             this.velocity = this.velocity * 0.5 + newVel * 0.5;
             
-            if (Math.abs(this.velocity) > 0.15 && now - this.lastSoundTime > 50) {
-                this.soundManager.playSpin(Math.min(Math.abs(this.velocity), 1));
-                this.lastSoundTime = now;
-            }
+            this.soundManager.updateSpinSound(Math.min(Math.abs(this.velocity), 1));
         }
         
         this.lastAngle = currentAngle;
@@ -162,9 +171,7 @@ export class SpinnerComponent extends BaseComponent {
         if (!this.isDragging) return;
         this.isDragging = false;
         
-        if (Math.abs(this.velocity) > 0.1) {
-            this.soundManager.playSpin(Math.min(Math.abs(this.velocity), 1));
-        }
+        this.soundManager.stopSpin();
         
         if (!this.animationId) {
             this.animationId = requestAnimationFrame(this.update);
@@ -187,10 +194,12 @@ export class SpinnerComponent extends BaseComponent {
         if (this.isCompleted) {
             this.spinAngle += this.constantRotationPerMs * deltaTime;
             this.blades.style.transform = `translate(-50%, -50%) rotate(${this.spinAngle}rad)`;
+            this.updateBladeRotation();
             this.animationId = requestAnimationFrame(this.update);
         } else if (Math.abs(this.velocity) > 0.001) {
             this.spinAngle += this.velocity;
             this.blades.style.transform = `translate(-50%, -50%) rotate(${this.spinAngle}rad)`;
+            this.updateBladeRotation();
             this.velocity *= this.friction;
             
             this.totalRotation += Math.abs(this.velocity);
@@ -209,7 +218,7 @@ export class SpinnerComponent extends BaseComponent {
     complete() {
         if (this.isCompleted) return;
         super.complete();
-        this.constantRotationPerMs = Math.abs(this.velocity) / 16;
+        this.constantRotationPerMs = this.velocity / 16;
         this.lastFrameTime = 0;
         if (!this.animationId) {
             this.animationId = requestAnimationFrame(this.update);
