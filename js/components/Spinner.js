@@ -7,7 +7,6 @@ export class SpinnerComponent extends BaseComponent {
         
         this.spinAngle = 0;
         this.velocity = 0;
-        this.friction = 0.985;
         this.isDragging = false;
         this.lastAngle = 0;
         this.lastTime = 0;
@@ -126,7 +125,6 @@ export class SpinnerComponent extends BaseComponent {
         this.animationId = null;
         this.update = this.update.bind(this);
         this.lastFrameTime = 0;
-        this.constantRotationPerMs = 0.025;
     }
 
     updateBladeRotation() {
@@ -171,7 +169,7 @@ export class SpinnerComponent extends BaseComponent {
         const now = Date.now();
         const dt = now - this.lastTime;
         if (dt > 0) {
-            const newVel = delta / (dt / 16);
+            const newVel = delta / dt * 16;
             this.velocity = this.velocity * 0.5 + newVel * 0.5;
             
             this.soundManager.updateSpinSound(Math.min(Math.abs(this.velocity), 1));
@@ -210,25 +208,24 @@ export class SpinnerComponent extends BaseComponent {
             return;
         }
         
-        if (this.isCompleted) {
-            this.spinAngle += this.constantRotationPerMs * deltaTime;
+        if (Math.abs(this.velocity) > 0.001) {
+            const frameMultiplier = deltaTime / 16.67;
+            this.spinAngle += this.velocity * frameMultiplier;
             this.blades.style.transform = `translate(-50%, -50%) rotate(${this.spinAngle}rad)`;
             this.updateBladeRotation();
-            this.updateRPM(this.constantRotationPerMs * 1000);
-            this.animationId = requestAnimationFrame(this.update);
-        } else if (Math.abs(this.velocity) > 0.001) {
-            this.spinAngle += this.velocity;
-            this.blades.style.transform = `translate(-50%, -50%) rotate(${this.spinAngle}rad)`;
-            this.updateBladeRotation();
-            this.velocity *= this.friction;
             
-            const radiansPerSecond = Math.abs(this.velocity) * 1000 / deltaTime;
+            const speed = Math.abs(this.velocity);
+            const speedFactor = 1 / (1 + speed * 2);
+            const decayRate = 0.05 * speedFactor;
+            this.velocity *= Math.pow(1 - decayRate, deltaTime / 1000);
+            
+            const radiansPerSecond = Math.abs(this.velocity) * 60;
             this.updateRPM(radiansPerSecond);
             
             this.totalRotation += Math.abs(this.velocity);
             
-            if (this.totalRotation > Math.PI * 6 && !this.isCompleted) {
-                this.complete();
+            if (this.totalRotation > Math.PI * 20 && !this.isCompleted) {
+                super.complete();
             }
             
             this.animationId = requestAnimationFrame(this.update);
@@ -244,15 +241,7 @@ export class SpinnerComponent extends BaseComponent {
         this.rpmDisplay.textContent = `${rpm} RPM`;
     }
 
-    complete() {
-        if (this.isCompleted) return;
-        super.complete();
-        this.constantRotationPerMs = this.velocity / 16;
-        this.lastFrameTime = 0;
-        if (!this.animationId) {
-            this.animationId = requestAnimationFrame(this.update);
-        }
-    }
+
 
     destroy() {
         if (this.animationId) {
