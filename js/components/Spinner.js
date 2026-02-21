@@ -1,6 +1,8 @@
 import { BaseComponent } from './BaseComponent.js';
 
 export class SpinnerComponent extends BaseComponent {
+    static SHOW_RPM = true;
+    
     constructor(w, h, color, soundManager) {
         super(w, h, color, soundManager);
         this._skipCompleteSound = true;
@@ -113,6 +115,7 @@ export class SpinnerComponent extends BaseComponent {
             color: #888;
             font-family: sans-serif;
             pointer-events: none;
+            display: ${SpinnerComponent.SHOW_RPM ? 'block' : 'none'};
         `;
         this.rpmDisplay.textContent = '0 RPM';
         this.element.appendChild(this.rpmDisplay);
@@ -169,8 +172,8 @@ export class SpinnerComponent extends BaseComponent {
         const now = Date.now();
         const dt = now - this.lastTime;
         if (dt > 0) {
-            const newVel = delta / dt * 16;
-            this.velocity = this.velocity * 0.5 + newVel * 0.5;
+            const newVel = delta / dt * 28;
+            this.velocity = this.velocity * 0.3 + newVel * 0.7;
             
             this.soundManager.updateSpinSound(Math.min(Math.abs(this.velocity), 1));
         }
