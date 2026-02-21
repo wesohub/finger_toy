@@ -204,22 +204,25 @@ export class GridManager {
             y * this.cellSize + margin / 2
         );
         
-        comp.on('completed', () => this.checkAllCompleted());
+        comp.on('completed', (c) => this.checkAllCompleted(c));
         
         this.gridElement.appendChild(comp.element);
         this.components.push(comp);
     }
 
-    checkAllCompleted() {
+    checkAllCompleted(triggeringComponent) {
         if (this.isTransitioning) return;
         if (this.components.every(c => c.isCompleted)) {
-            this.transitionToNextLevel();
+            this.transitionToNextLevel(triggeringComponent);
         }
     }
 
-    transitionToNextLevel() {
+    transitionToNextLevel(triggeringComponent) {
         this.isTransitioning = true;
-        this.soundManager.playComplete();
+        
+        if (!triggeringComponent?._skipCompleteSound) {
+            this.soundManager.playComplete();
+        }
         
         this.components.forEach(c => c.disable());
         

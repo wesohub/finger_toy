@@ -255,9 +255,10 @@ export class SoundManager {
         if (!this.isSpinActive) return;
         
         const t = this.ctx.currentTime;
+        const fadeTime = 0.8;
         
-        this.spinNoiseGain.gain.linearRampToValueAtTime(0, t + 0.2);
-        this.spinNoiseGain2.gain.linearRampToValueAtTime(0, t + 0.2);
+        this.spinNoiseGain.gain.linearRampToValueAtTime(0, t + fadeTime);
+        this.spinNoiseGain2.gain.linearRampToValueAtTime(0, t + fadeTime);
         
         const noise1 = this.spinNoise;
         const noise2 = this.spinNoise2;
@@ -265,7 +266,7 @@ export class SoundManager {
         setTimeout(() => {
             if (noise1) { try { noise1.stop(); } catch(e) {} }
             if (noise2) { try { noise2.stop(); } catch(e) {} }
-        }, 250);
+        }, (fadeTime + 0.1) * 1000);
         
         this.spinNoise = null;
         this.spinNoise2 = null;
@@ -345,55 +346,56 @@ export class SoundManager {
         
         const osc = this.ctx.createOscillator();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(baseFreq + 100, t);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq, t + 0.025);
+        osc.frequency.setValueAtTime(baseFreq + 80, t);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq, t + 0.03);
         
         const lowpass = this.ctx.createBiquadFilter();
         lowpass.type = 'lowpass';
-        lowpass.frequency.setValueAtTime(2500, t);
-        lowpass.frequency.exponentialRampToValueAtTime(600, t + 0.04);
-        lowpass.Q.value = 2;
+        lowpass.frequency.setValueAtTime(2000, t);
+        lowpass.frequency.exponentialRampToValueAtTime(400, t + 0.06);
+        lowpass.Q.value = 1;
         
         const gain = this.ctx.createGain();
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.35, t + 0.002);
-        gain.gain.setValueAtTime(0.35, t + 0.006);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+        gain.gain.linearRampToValueAtTime(0.3, t + 0.004);
+        gain.gain.setValueAtTime(0.3, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
         
         osc.connect(lowpass);
         lowpass.connect(gain);
         gain.connect(this.masterGain);
         
-        const { source: noise, filter: noiseFilter } = this.createFilteredNoise(0.025, 1500 + progress * 500, 3);
+        const { source: noise, filter: noiseFilter } = this.createFilteredNoise(0.02, 800 + progress * 300, 1.5);
         const noiseGain = this.ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.12, t);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+        noiseGain.gain.setValueAtTime(0.06, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
         
         noiseFilter.connect(noiseGain);
         noiseGain.connect(this.masterGain);
         
         const click = this.ctx.createOscillator();
-        click.type = 'square';
-        click.frequency.setValueAtTime(800 + progress * 200, t);
+        click.type = 'sine';
+        click.frequency.setValueAtTime(600 + progress * 150, t);
         
         const clickGain = this.ctx.createGain();
-        clickGain.gain.setValueAtTime(0.08, t);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.008);
+        clickGain.gain.setValueAtTime(0, t);
+        clickGain.gain.linearRampToValueAtTime(0.12, t + 0.002);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
         
         const clickFilter = this.ctx.createBiquadFilter();
         clickFilter.type = 'highpass';
-        clickFilter.frequency.value = 400;
+        clickFilter.frequency.value = 300;
         
         click.connect(clickFilter);
         clickFilter.connect(clickGain);
         clickGain.connect(this.masterGain);
         
         osc.start(t);
-        osc.stop(t + 0.05);
+        osc.stop(t + 0.07);
         noise.start(t);
-        noise.stop(t + 0.025);
+        noise.stop(t + 0.02);
         click.start(t);
-        click.stop(t + 0.01);
+        click.stop(t + 0.02);
     }
 
     playPop() {

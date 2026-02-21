@@ -104,6 +104,20 @@ export class SpinnerComponent extends BaseComponent {
         this.element.appendChild(this.center);
         this.element.appendChild(this.bearing);
         
+        this.rpmDisplay = document.createElement('div');
+        this.rpmDisplay.className = 'spinner-rpm';
+        this.rpmDisplay.style.cssText = `
+            position: absolute;
+            left: 8px;
+            bottom: 6px;
+            font-size: 10px;
+            color: #888;
+            font-family: sans-serif;
+            pointer-events: none;
+        `;
+        this.rpmDisplay.textContent = '0 RPM';
+        this.element.appendChild(this.rpmDisplay);
+        
         this.element.addEventListener('pointerdown', this.onDragStart.bind(this));
         document.addEventListener('pointermove', this.onDragMove.bind(this));
         document.addEventListener('pointerup', this.onDragEnd.bind(this));
@@ -113,6 +127,9 @@ export class SpinnerComponent extends BaseComponent {
         this.update = this.update.bind(this);
         this.lastFrameTime = 0;
         this.constantRotationPerMs = 0.025;
+        this.lastRPMUpdateTime = 0;
+        this.rpmUpdateInterval = 100;
+        this.lastMovementTime = 0;
     }
 
     updateBladeRotation() {
@@ -157,11 +174,14 @@ export class SpinnerComponent extends BaseComponent {
         const now = Date.now();
         const dt = now - this.lastTime;
         if (dt > 0) {
-            const newVel = delta / (dt / 16);
-            this.velocity = this.velocity * 0.5 + newVel * 0.5;
+            const newVel = delta / dt;
+            const smoothingFactor = 0.7;
+            this.velocity = this.velocity * smoothingFactor + newVel * (1 - smoothingFactor);
             
-            this.soundManager.updateSpinSound(Math.min(Math.abs(this.velocity), 1));
+            this.soundManager.updateSpinSound(Math.min(Math.abs(this.velocity) * 16, 1));
         }
+        
+        this.lastMovementTime = now;
         
         this.lastAngle = currentAngle;
         this.lastTime = now;
@@ -195,14 +215,17 @@ export class SpinnerComponent extends BaseComponent {
             this.spinAngle += this.constantRotationPerMs * deltaTime;
             this.blades.style.transform = `translate(-50%, -50%) rotate(${this.spinAngle}rad)`;
             this.updateBladeRotation();
+            this.updateRPM(this.constantRotationPerMs * 1000);
             this.animationId = requestAnimationFrame(this.update);
-        } else if (Math.abs(this.velocity) > 0.001) {
-            this.spinAngle += this.velocity;
+        } else if (Math.abs(this.velocity) > 0.0001 || Date.now() - this.lastMovementTime < 100) {
+            this.spinAngle += this.velocity * deltaTime;
             this.blades.style.transform = `translate(-50%, -50%) rotate(${this.spinAngle}rad)`;
             this.updateBladeRotation();
-            this.velocity *= this.friction;
+            this.velocity *= Math.pow(this.friction, deltaTime / 16);
             
-            this.totalRotation += Math.abs(this.velocity);
+            this.updateRPM(Math.abs(this.velocity) * 1000);
+            
+            this.totalRotation += Math.abs(this.velocity * deltaTime);
             
             if (this.totalRotation > Math.PI * 6 && !this.isCompleted) {
                 this.complete();
@@ -211,14 +234,24 @@ export class SpinnerComponent extends BaseComponent {
             this.animationId = requestAnimationFrame(this.update);
         } else {
             this.velocity = 0;
+            this.updateRPM(0);
             this.animationId = null;
         }
+    }
+    
+    updateRPM(radiansPerSecond) {
+        const now = Date.now();
+        if (now - this.lastRPMUpdateTime < this.rpmUpdateInterval) return;
+        
+        const rpm = Math.round(Math.abs(radiansPerSecond) * 60 / (2 * Math.PI));
+        this.rpmDisplay.textContent = `${rpm} RPM`;
+        this.lastRPMUpdateTime = now;
     }
 
     complete() {
         if (this.isCompleted) return;
         super.complete();
-        this.constantRotationPerMs = this.velocity / 16;
+        this.constantRotationPerMs = this.velocity;
         this.lastFrameTime = 0;
         if (!this.animationId) {
             this.animationId = requestAnimationFrame(this.update);
