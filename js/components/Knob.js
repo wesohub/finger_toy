@@ -6,6 +6,7 @@ export class KnobComponent extends BaseComponent {
         
         this.value = 0;
         this.isDragging = false;
+        this.pointerId = null;
         this.radius = Math.min(w, h) * 0.35;
         this.centerX = w / 2;
         this.centerY = h / 2;
@@ -118,8 +119,10 @@ export class KnobComponent extends BaseComponent {
 
     onDragStart(e) {
         if (this.isCompleted && !this._zenMode) return;
+        if (this.isDragging) return;
         e.preventDefault();
         this.isDragging = true;
+        this.pointerId = e.pointerId;
         this.knobBody.setPointerCapture(e.pointerId);
         
         const rect = this.element.getBoundingClientRect();
@@ -130,6 +133,7 @@ export class KnobComponent extends BaseComponent {
 
     onDragMove(e) {
         if (!this.isDragging) return;
+        if (e.pointerId !== this.pointerId) return;
         if (this.isCompleted && !this._zenMode) return;
         
         const rect = this.element.getBoundingClientRect();
@@ -175,7 +179,9 @@ export class KnobComponent extends BaseComponent {
         }
     }
 
-    onDragEnd() {
+    onDragEnd(e) {
+        if (e.pointerId !== this.pointerId) return;
         this.isDragging = false;
+        this.pointerId = null;
     }
 }

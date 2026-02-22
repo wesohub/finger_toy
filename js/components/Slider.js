@@ -6,6 +6,7 @@ export class SliderComponent extends BaseComponent {
         
         this.value = 0;
         this.dragging = false;
+        this.pointerId = null;
         this.lastValue = 0;
         this.isHorizontal = isHorizontal;
         this.padding = 24;
@@ -67,8 +68,10 @@ export class SliderComponent extends BaseComponent {
 
     onDragStart(e) {
         if (this.isCompleted && !this._zenMode) return;
+        if (this.dragging) return;
         e.preventDefault();
         this.dragging = true;
+        this.pointerId = e.pointerId;
         this.handle.setPointerCapture(e.pointerId);
         this.lastValue = this.value;
         this.soundManager.playSlide();
@@ -76,6 +79,7 @@ export class SliderComponent extends BaseComponent {
 
     onDragMove(e) {
         if (!this.dragging) return;
+        if (e.pointerId !== this.pointerId) return;
         if (this.isCompleted && !this._zenMode) return;
         
         const handleSize = 44;
@@ -120,8 +124,10 @@ export class SliderComponent extends BaseComponent {
         }
     }
 
-    onDragEnd() {
+    onDragEnd(e) {
+        if (e.pointerId !== this.pointerId) return;
         this.dragging = false;
+        this.pointerId = null;
         this.soundManager.stopSlide();
     }
 }

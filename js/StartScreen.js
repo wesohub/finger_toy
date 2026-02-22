@@ -1,14 +1,10 @@
-import { SoundManager } from './SoundManager.js';
-
 export class StartScreen {
-    constructor(container, soundManager, onComplete) {
+    constructor(container, onComplete) {
         this.container = container;
         this.onComplete = onComplete;
         this.element = null;
         this.letters = [];
-        this.letterAppearOrder = [];
         this.isAnimating = false;
-        this.soundManager = soundManager;
         this.colors = [
             '#3B82F6',
             '#10B981',
@@ -52,21 +48,10 @@ export class StartScreen {
                 letter.style.setProperty('--appear-order', appearOrder);
                 
                 this.letters.push(letter);
-                this.letterAppearOrder.push({ letter, appearOrder });
                 letterWrapper.appendChild(letter);
             }
             
             titleContainer.appendChild(letterWrapper);
-        });
-        
-        this.letterAppearOrder.sort((a, b) => a.appearOrder - b.appearOrder);
-        
-        const totalLetters = this.letterAppearOrder.length;
-        this.letterAppearOrder.forEach((item, index) => {
-            const delay = item.appearOrder * 120;
-            setTimeout(() => {
-                this.soundManager.playLetterAppear(index, totalLetters);
-            }, delay);
         });
         
         this.element.appendChild(titleContainer);

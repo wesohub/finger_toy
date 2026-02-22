@@ -6,6 +6,7 @@ export class AudioSliderComponent extends BaseComponent {
         
         this.value = 0;
         this.dragging = false;
+        this.pointerId = null;
         this.lastToneIndex = -1;
         this.isHorizontal = isHorizontal;
         this.padding = 16;
@@ -130,8 +131,10 @@ export class AudioSliderComponent extends BaseComponent {
 
     onDragStart(e) {
         if (this.isCompleted && !this._zenMode) return;
+        if (this.dragging) return;
         e.preventDefault();
         this.dragging = true;
+        this.pointerId = e.pointerId;
         this.element.setPointerCapture(e.pointerId);
         
         if (this.value === 0) {
@@ -199,11 +202,14 @@ export class AudioSliderComponent extends BaseComponent {
 
     onDragMove(e) {
         if (!this.dragging) return;
+        if (e.pointerId !== this.pointerId) return;
         if (this.isCompleted && !this._zenMode) return;
         this.updateValueFromPosition(e);
     }
 
-    onDragEnd() {
+    onDragEnd(e) {
+        if (e.pointerId !== this.pointerId) return;
         this.dragging = false;
+        this.pointerId = null;
     }
 }

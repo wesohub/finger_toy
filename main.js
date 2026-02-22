@@ -22,7 +22,6 @@ function createBottomControls() {
     const zenBtn = document.createElement('button');
     zenBtn.className = 'control-btn';
     zenBtn.id = 'zen-btn';
-    zenBtn.style.marginRight = '15px';
     zenBtn.innerHTML = `
         <i class="fa-solid fa-spa"></i>
     `;
@@ -48,7 +47,6 @@ function createBottomControls() {
     const nextBtn = document.createElement('button');
     nextBtn.className = 'control-btn';
     nextBtn.id = 'next-btn';
-    nextBtn.style.marginLeft = '15px';
     nextBtn.innerHTML = `
         <i class="fa-solid fa-forward"></i>
     `;
@@ -178,7 +176,7 @@ function applyVolume() {
 
 function resize() {
     const margin = 20;
-    const bottomBarHeight = 70;
+    const bottomBarHeight = 44;
     const availableWidth = window.innerWidth - (margin * 2);
     const availableHeight = window.innerHeight - (margin * 2) - bottomBarHeight;
 
@@ -202,7 +200,7 @@ function resize() {
 createBottomControls();
 resize();
 
-const startScreen = new StartScreen(document.body, gridManager.soundManager, () => {
+const startScreen = new StartScreen(document.body, () => {
     gameStarted = true;
     gridManager.generateLevel();
     gridManager.showGameWithAnimation();
