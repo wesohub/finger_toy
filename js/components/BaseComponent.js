@@ -7,6 +7,7 @@ export class BaseComponent {
         this.isCompleted = false;
         this._eventListeners = new Map();
         this._skipCompleteSound = false;
+        this._zenMode = false;
         
         this.element = document.createElement('div');
         this.element.className = 'component';
@@ -34,11 +35,18 @@ export class BaseComponent {
         }
     }
 
+    setZenMode(enabled) {
+        this._zenMode = enabled;
+    }
+
     complete() {
-        if (this.isCompleted) return;
-        this.isCompleted = true;
+        if (this.isCompleted && !this._zenMode) return;
         
-        this.element.classList.add('completed');
+        if (!this._zenMode) {
+            this.isCompleted = true;
+            this.element.classList.add('completed');
+        }
+        
         if (!this._skipCompleteSound) {
             this.soundManager.playComplete();
         }

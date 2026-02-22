@@ -8,6 +8,8 @@ export class RapidFireButtonComponent extends BaseComponent {
         this.isPressed = false;
         this.accumulateSpeed = 0.8;
         this.lastFrameTime = 0;
+        this.zenPause = false;
+        this.zenCompleted = false;
         
         this.ring = document.createElement('div');
         this.ring.className = 'rapid-ring';
@@ -68,9 +70,9 @@ export class RapidFireButtonComponent extends BaseComponent {
         
         this.progressCircle = this.progressEl.querySelector('.progress-fill');
         
-        this.element.addEventListener('pointerdown', this.onDown.bind(this));
-        this.element.addEventListener('pointerup', this.onUp.bind(this));
-        this.element.addEventListener('pointerleave', this.onUp.bind(this));
+        this.btn.addEventListener('pointerdown', this.onDown.bind(this));
+        this.btn.addEventListener('pointerup', this.onUp.bind(this));
+        this.btn.addEventListener('pointerleave', this.onUp.bind(this));
     }
 
     updateProgress() {
@@ -80,7 +82,8 @@ export class RapidFireButtonComponent extends BaseComponent {
     }
 
     onDown(e) {
-        if (this.isCompleted) return;
+        if (this.isCompleted && !this._zenMode) return;
+        if (this.zenPause) return;
         e.preventDefault();
         this.isPressed = true;
         this.lastFrameTime = 0;
@@ -92,7 +95,9 @@ export class RapidFireButtonComponent extends BaseComponent {
     }
 
     accumulate(timestamp) {
-        if (!this.isPressed || this.isCompleted) return;
+        if (!this.isPressed) return;
+        if (this.isCompleted && !this._zenMode) return;
+        if (this.zenPause) return;
         
         if (!this.lastFrameTime) {
             this.lastFrameTime = timestamp;
@@ -102,11 +107,31 @@ export class RapidFireButtonComponent extends BaseComponent {
         this.lastFrameTime = timestamp;
         
         this.progress += this.accumulateSpeed * deltaTime;
+        
+        if (this._zenMode && this.progress >= 0.99) {
+            this.progress = 0;
+            this.updateProgress();
+            this.zenCompleted = true;
+            this.zenPause = true;
+            this.complete();
+            setTimeout(() => {
+                this.zenPause = false;
+                this.zenCompleted = false;
+                if (this.isPressed) {
+                    this.lastFrameTime = 0;
+                    requestAnimationFrame((ts) => this.accumulate(ts));
+                }
+            }, 300);
+            return;
+        }
+        
         this.updateProgress();
         
-        this.soundManager.playProgress(this.progress);
+        if (!this.zenCompleted) {
+            this.soundManager.playProgress(this.progress);
+        }
         
-        if (this.progress >= 0.99) {
+        if (this.progress >= 0.99 && !this._zenMode) {
             this.complete();
             return;
         }

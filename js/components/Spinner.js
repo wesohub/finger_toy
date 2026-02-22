@@ -137,7 +137,7 @@ export class SpinnerComponent extends BaseComponent {
     }
 
     onDragStart(e) {
-        if (this.isCompleted) return;
+        if (this.isCompleted && !this._zenMode) return;
         e.preventDefault();
         this.isDragging = true;
         this.velocity = 0;
@@ -172,7 +172,7 @@ export class SpinnerComponent extends BaseComponent {
         const now = Date.now();
         const dt = now - this.lastTime;
         if (dt > 0) {
-            const newVel = delta / dt * 28;
+            const newVel = delta / dt * 24;
             this.velocity = this.velocity * 0.3 + newVel * 0.7;
             
             this.soundManager.updateSpinSound(Math.min(Math.abs(this.velocity), 1));
@@ -229,6 +229,9 @@ export class SpinnerComponent extends BaseComponent {
             
             if (this.totalRotation > Math.PI * 20 && !this.isCompleted) {
                 super.complete();
+                if (this._zenMode) {
+                    this.totalRotation = 0;
+                }
             }
             
             this.animationId = requestAnimationFrame(this.update);
@@ -243,8 +246,6 @@ export class SpinnerComponent extends BaseComponent {
         const rpm = Math.round(Math.abs(radiansPerSecond) * 60 / (2 * Math.PI));
         this.rpmDisplay.textContent = `${rpm} RPM`;
     }
-
-
 
     destroy() {
         if (this.animationId) {

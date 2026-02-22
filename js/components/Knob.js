@@ -11,6 +11,7 @@ export class KnobComponent extends BaseComponent {
         this.centerY = h / 2;
         this.lastAngle = 0;
         this.lastValue = 0;
+        this.zenCompleted = false;
         
         this.container = document.createElement('div');
         this.container.className = 'knob-container';
@@ -116,7 +117,7 @@ export class KnobComponent extends BaseComponent {
     }
 
     onDragStart(e) {
-        if (this.isCompleted) return;
+        if (this.isCompleted && !this._zenMode) return;
         e.preventDefault();
         this.isDragging = true;
         this.knobBody.setPointerCapture(e.pointerId);
@@ -128,7 +129,8 @@ export class KnobComponent extends BaseComponent {
     }
 
     onDragMove(e) {
-        if (!this.isDragging || this.isCompleted) return;
+        if (!this.isDragging) return;
+        if (this.isCompleted && !this._zenMode) return;
         
         const rect = this.element.getBoundingClientRect();
         const dx = e.clientX - rect.left - this.centerX;
@@ -141,7 +143,13 @@ export class KnobComponent extends BaseComponent {
         if (delta < -Math.PI) delta += Math.PI * 2;
         
         this.value += delta / (Math.PI * 1.5);
-        this.value = Math.max(0, Math.min(1, this.value));
+        
+        if (this._zenMode) {
+            if (this.value > 1) this.value = 1;
+            if (this.value < 0) this.value = 0;
+        } else {
+            this.value = Math.max(0, Math.min(1, this.value));
+        }
         
         this.lastAngle = currentAngle;
         
@@ -154,7 +162,16 @@ export class KnobComponent extends BaseComponent {
         this.lastValue = this.value;
         
         if (this.value >= 0.99) {
-            this.complete();
+            if (this._zenMode) {
+                if (!this.zenCompleted) {
+                    this.zenCompleted = true;
+                    this.complete();
+                }
+            } else {
+                this.complete();
+            }
+        } else if (this._zenMode) {
+            this.zenCompleted = false;
         }
     }
 

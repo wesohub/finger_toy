@@ -9,6 +9,7 @@ export class AudioSliderComponent extends BaseComponent {
         this.lastToneIndex = -1;
         this.isHorizontal = isHorizontal;
         this.padding = 16;
+        this.zenCompleted = false;
         
         const barSize = 10;
         const barGap = 6;
@@ -128,7 +129,7 @@ export class AudioSliderComponent extends BaseComponent {
     }
 
     onDragStart(e) {
-        if (this.isCompleted) return;
+        if (this.isCompleted && !this._zenMode) return;
         e.preventDefault();
         this.dragging = true;
         this.element.setPointerCapture(e.pointerId);
@@ -156,18 +157,23 @@ export class AudioSliderComponent extends BaseComponent {
             targetValue = 1 - (y / trackLength);
         }
         
-        const currentNoteIndex = Math.floor(this.value * (this.barCount - 0.01));
-        const targetNoteIndex = Math.floor(targetValue * (this.barCount - 0.01));
-        
-        if (targetNoteIndex > currentNoteIndex + 1) {
-            this.value = (currentNoteIndex + 2) / this.barCount;
-        } else if (targetNoteIndex < currentNoteIndex) {
-            this.value = Math.max(1 / this.barCount, targetValue);
+        if (this._zenMode) {
+            this.value = Math.max(0, Math.min(1, targetValue));
         } else {
-            this.value = targetValue;
+            const currentNoteIndex = Math.floor(this.value * (this.barCount - 0.01));
+            const targetNoteIndex = Math.floor(targetValue * (this.barCount - 0.01));
+            
+            if (targetNoteIndex > currentNoteIndex + 1) {
+                this.value = (currentNoteIndex + 2) / this.barCount;
+            } else if (targetNoteIndex < currentNoteIndex) {
+                this.value = Math.max(1 / this.barCount, targetValue);
+            } else {
+                this.value = targetValue;
+            }
+            
+            this.value = Math.max(0, Math.min(1, this.value));
         }
         
-        this.value = Math.max(0, Math.min(1, this.value));
         this.updateVisual();
         
         const noteIndex = Math.floor(this.value * (this.barCount - 0.01));
@@ -178,12 +184,22 @@ export class AudioSliderComponent extends BaseComponent {
         }
         
         if (noteIndex >= this.barCount - 1) {
-            this.complete();
+            if (this._zenMode) {
+                if (!this.zenCompleted) {
+                    this.zenCompleted = true;
+                    this.complete();
+                }
+            } else {
+                this.complete();
+            }
+        } else if (this._zenMode) {
+            this.zenCompleted = false;
         }
     }
 
     onDragMove(e) {
-        if (!this.dragging || this.isCompleted) return;
+        if (!this.dragging) return;
+        if (this.isCompleted && !this._zenMode) return;
         this.updateValueFromPosition(e);
     }
 

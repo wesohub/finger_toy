@@ -16,6 +16,10 @@ export class SoundManager {
         this.isSpinActive = false;
     }
 
+    setVolume(gain) {
+        this.masterGain.gain.value = Math.max(0, Math.min(2, gain));
+    }
+
     createNoiseBuffer(duration) {
         const sampleRate = this.ctx.sampleRate;
         const length = sampleRate * duration;
@@ -245,8 +249,8 @@ export class SoundManager {
         this.spinNoiseFilter.frequency.linearRampToValueAtTime(300 + normalizedSpeed * 200, t + 0.03);
         this.spinNoiseFilter2.frequency.linearRampToValueAtTime(200 + normalizedSpeed * 150, t + 0.03);
         
-        const vol1 = 0.25 + normalizedSpeed * 0.2;
-        const vol2 = 0.15 + normalizedSpeed * 0.15;
+        const vol1 = normalizedSpeed * 0.4;
+        const vol2 = normalizedSpeed * 0.3;
         this.spinNoiseGain.gain.linearRampToValueAtTime(vol1, t + 0.03);
         this.spinNoiseGain2.gain.linearRampToValueAtTime(vol2, t + 0.03);
     }
@@ -568,5 +572,51 @@ export class SoundManager {
         highClick.stop(t + 0.03);
         noise.start(t);
         noise.stop(t + 0.02);
+    }
+
+    playLetterAppear(index, total) {
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const t = this.ctx.currentTime;
+        
+        const baseFreq = 400 + (index / total) * 200;
+        
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq * 1.2, t);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq, t + 0.05);
+        
+        const osc2 = this.ctx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(baseFreq * 2.4, t);
+        osc2.frequency.exponentialRampToValueAtTime(baseFreq * 2, t + 0.03);
+        
+        const lowpass = this.ctx.createBiquadFilter();
+        lowpass.type = 'lowpass';
+        lowpass.frequency.setValueAtTime(3000, t);
+        lowpass.frequency.exponentialRampToValueAtTime(800, t + 0.1);
+        lowpass.Q.value = 1;
+        
+        const gain1 = this.ctx.createGain();
+        gain1.gain.setValueAtTime(0, t);
+        gain1.gain.linearRampToValueAtTime(0.25, t + 0.01);
+        gain1.gain.setValueAtTime(0.25, t + 0.02);
+        gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+        
+        const gain2 = this.ctx.createGain();
+        gain2.gain.setValueAtTime(0, t);
+        gain2.gain.linearRampToValueAtTime(0.08, t + 0.008);
+        gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+        
+        osc.connect(lowpass);
+        lowpass.connect(gain1);
+        gain1.connect(this.masterGain);
+        
+        osc2.connect(gain2);
+        gain2.connect(this.masterGain);
+        
+        osc.start(t);
+        osc.stop(t + 0.18);
+        osc2.start(t);
+        osc2.stop(t + 0.1);
     }
 }

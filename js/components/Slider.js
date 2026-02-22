@@ -9,6 +9,7 @@ export class SliderComponent extends BaseComponent {
         this.lastValue = 0;
         this.isHorizontal = isHorizontal;
         this.padding = 24;
+        this.zenCompleted = false;
         
         this.track = document.createElement('div');
         this.track.className = 'slider-track';
@@ -65,7 +66,7 @@ export class SliderComponent extends BaseComponent {
     }
 
     onDragStart(e) {
-        if (this.isCompleted) return;
+        if (this.isCompleted && !this._zenMode) return;
         e.preventDefault();
         this.dragging = true;
         this.handle.setPointerCapture(e.pointerId);
@@ -74,7 +75,8 @@ export class SliderComponent extends BaseComponent {
     }
 
     onDragMove(e) {
-        if (!this.dragging || this.isCompleted) return;
+        if (!this.dragging) return;
+        if (this.isCompleted && !this._zenMode) return;
         
         const handleSize = 44;
         const rect = this.track.getBoundingClientRect();
@@ -103,9 +105,18 @@ export class SliderComponent extends BaseComponent {
         this.lastValue = this.value;
         
         if (this.value >= 0.99) {
-            this.complete();
-            this.dragging = false;
-            this.soundManager.stopSlide();
+            if (this._zenMode) {
+                if (!this.zenCompleted) {
+                    this.zenCompleted = true;
+                    this.complete();
+                }
+            } else {
+                this.complete();
+                this.dragging = false;
+                this.soundManager.stopSlide();
+            }
+        } else if (this._zenMode) {
+            this.zenCompleted = false;
         }
     }
 

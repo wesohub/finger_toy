@@ -7,6 +7,7 @@ export class TapButtonComponent extends BaseComponent {
         this.progress = 0;
         this.clicksRequired = 8;
         this.lastActivatedDot = -1;
+        this.zenReadyToReset = false;
         
         this.dotsContainer = document.createElement('div');
         this.dotsContainer.className = 'tap-dots';
@@ -84,17 +85,27 @@ export class TapButtonComponent extends BaseComponent {
         this.element.appendChild(this.dotsContainer);
         this.element.appendChild(this.btn);
         
-        this.element.addEventListener('pointerdown', this.onDown.bind(this));
-        this.element.addEventListener('pointerup', this.onUp.bind(this));
-        this.element.addEventListener('pointerleave', this.onUp.bind(this));
+        this.btn.addEventListener('pointerdown', this.onDown.bind(this));
+        this.btn.addEventListener('pointerup', this.onUp.bind(this));
+        this.btn.addEventListener('pointerleave', this.onUp.bind(this));
     }
 
     onDown(e) {
-        if (this.isCompleted) return;
+        if (this.isCompleted && !this._zenMode) return;
         e.preventDefault();
         
         this.btn.style.boxShadow = 'inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light)';
         this.soundManager.playClick();
+        
+        if (this._zenMode && this.zenReadyToReset) {
+            this.progress = 0;
+            this.dots.forEach(fill => {
+                fill.style.opacity = '0';
+            });
+            this.lastActivatedDot = -1;
+            this.zenReadyToReset = false;
+            return;
+        }
         
         this.progress += 1 / this.clicksRequired;
         
@@ -111,6 +122,9 @@ export class TapButtonComponent extends BaseComponent {
         }
         
         if (this.progress >= 0.99) {
+            if (this._zenMode) {
+                this.zenReadyToReset = true;
+            }
             this.complete();
         }
     }

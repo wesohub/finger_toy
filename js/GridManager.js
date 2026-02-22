@@ -16,6 +16,7 @@ export class GridManager {
         this.soundManager = new SoundManager();
         this.components = [];
         this.grid = [];
+        this.zenMode = false;
         
         this.palette = [
             '#3B82F6',
@@ -30,6 +31,16 @@ export class GridManager {
 
         this.isTransitioning = false;
         this.gridElement = null;
+        this.hasShownInitial = false;
+    }
+    
+    setZenMode(enabled) {
+        this.zenMode = enabled;
+        this.components.forEach(comp => {
+            if (comp.setZenMode) {
+                comp.setZenMode(enabled);
+            }
+        });
     }
 
     resize(cellSize, x, y) {
@@ -199,6 +210,9 @@ export class GridManager {
         const pixelH = h * this.cellSize - margin;
         
         const comp = new ComponentClass(pixelW, pixelH, color, this.soundManager, isHorizontal);
+        if (this.zenMode && comp.setZenMode) {
+            comp.setZenMode(true);
+        }
         comp.setPosition(
             x * this.cellSize + margin / 2,
             y * this.cellSize + margin / 2
@@ -212,12 +226,13 @@ export class GridManager {
 
     checkAllCompleted(triggeringComponent) {
         if (this.isTransitioning) return;
+        if (this.zenMode) return;
         if (this.components.every(c => c.isCompleted)) {
             this.transitionToNextLevel(triggeringComponent);
         }
     }
 
-    transitionToNextLevel(triggeringComponent) {
+    transitionToNextLevel(triggeringComponent, immediate = false) {
         this.isTransitioning = true;
         
         if (!triggeringComponent?._skipCompleteSound) {
@@ -240,7 +255,7 @@ export class GridManager {
         
         this.populateGrid();
         
-        const delay = 1000;
+        const delay = immediate ? 0 : 1000;
         const duration = 600;
         const extraDistance = 50;
         
@@ -282,5 +297,33 @@ export class GridManager {
                 }
             }
         }
+    }
+
+    showGameWithAnimation() {
+        if (!this.gridElement) return;
+        
+        this.gridElement.style.transform = 'translateY(-100vh)';
+        this.gridElement.style.opacity = '0';
+        
+        const duration = 800;
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            const ease = 1 - Math.pow(1 - progress, 3);
+            
+            this.gridElement.style.transform = `translateY(${-100 + ease * 100}vh)`;
+            this.gridElement.style.opacity = ease.toString();
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                this.gridElement.style.transform = '';
+                this.gridElement.style.opacity = '';
+            }
+        };
+        
+        requestAnimationFrame(animate);
     }
 }

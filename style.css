@@ -498,3 +498,249 @@ body, html {
     from { transform: translateY(-100vh); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
+.bottom-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: var(--bg-color);
+    box-shadow: 0 -4px 12px var(--shadow-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+    z-index: 1000;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--bg-color);
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.15s ease;
+    color: var(--text-color);
+    font-size: 18px;
+}
+
+.control-btn:active {
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+    transform: scale(0.95);
+}
+
+.control-btn.active {
+    background: var(--color-teal);
+    color: white;
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+}
+
+.control-btn-label {
+    position: absolute;
+    bottom: 58px;
+    font-size: 10px;
+    color: var(--text-color);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.control-btn:hover .control-btn-label {
+    opacity: 1;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-color);
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+    border-radius: 25px;
+    padding: 8px 16px;
+}
+
+.volume-icon {
+    font-size: 14px;
+    color: var(--text-color);
+    width: 20px;
+    text-align: center;
+}
+
+.volume-slider-container {
+    width: 140px;
+    height: 30px;
+    position: relative;
+    cursor: pointer;
+}
+
+.volume-track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 6px;
+    transform: translateY(-50%);
+    background: var(--bg-color);
+    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    border-radius: 3px;
+}
+
+.volume-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--color-teal);
+    border-radius: 3px;
+    transition: width 0.1s ease;
+}
+
+.volume-handle {
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    background: var(--bg-color);
+    box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: grab;
+    transition: box-shadow 0.15s ease;
+}
+
+.volume-handle:active {
+    cursor: grabbing;
+    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+}
+
+.volume-markers {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2px;
+    pointer-events: none;
+}
+
+.volume-marker {
+    width: 2px;
+    height: 12px;
+    background: var(--shadow-dark);
+    border-radius: 1px;
+    opacity: 0.5;
+}
+
+.volume-marker.active {
+    background: var(--color-teal);
+    opacity: 1;
+}
+
+.start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    cursor: pointer;
+}
+
+.title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.05em;
+}
+
+.letter-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.letter-wrapper.space {
+    width: 0.3em;
+}
+
+.letter {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: clamp(48px, 15vw, 120px);
+    font-weight: 800;
+    color: var(--letter-color);
+    text-shadow: 
+        -2px -2px 4px rgba(255, 255, 255, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.15),
+        4px 4px 8px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(-80px) scale(0.5);
+    animation: letterAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: calc(var(--appear-order) * 0.12s);
+    position: relative;
+}
+
+@keyframes letterAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(-80px) scale(0.5) rotate(-10deg);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(10px) scale(1.1) rotate(2deg);
+    }
+    80% {
+        transform: translateY(-5px) scale(0.95) rotate(-1deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotate(0);
+    }
+}
+
+.start-screen.exit {
+    pointer-events: none;
+}
+
+.start-screen.exit .letter {
+    animation: letterExit 0.5s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+    animation-delay: calc(var(--appear-order) * 0.05s);
+}
+
+@keyframes letterExit {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(100vh) scale(0.8) rotate(10deg);
+    }
+}
+
+.start-screen.exit .title-container {
+    animation: containerExit 0.6s ease forwards;
+    animation-delay: 0.3s;
+}
+
+@keyframes containerExit {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
